@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Анастасия Алексеева](https://up.htmlacademy.ru/ecmascript-individual/2/user/2483017).
-* Наставник: `Неизвестно`.
+* Наставник: [Анастасия Гущина](https://htmlacademy.ru/profile/vanastasiya).
 
 ---
 
