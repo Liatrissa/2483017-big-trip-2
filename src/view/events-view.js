@@ -1,10 +1,10 @@
-import {createElement} from '../render.js';
+import { createElement } from '../render.js';
 
 function createBoardTemplate() {
   return '<ul class="trip-events__list"></ul>';
 }
 
-export default class BoardView {
+export default class TripEventsListView{
   getTemplate() {
     return createBoardTemplate();
   }
