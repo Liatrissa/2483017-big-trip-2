@@ -1,7 +1,7 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeEventDate } from '../utils.js';
 
-function createEditPointTemplate(point,destination,allDestinations,allTypeOffers,offersType) {
+function createEditPointTemplate(point, destination, allDestinations, pointTypes, offersByType) {
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
@@ -13,7 +13,7 @@ function createEditPointTemplate(point,destination,allDestinations,allTypeOffers
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                        ${allTypeOffers.map((type) => ` <div class="event__type-item">
+                        ${pointTypes.map((type) => ` <div class="event__type-item">
                           <input ${type === point.type ? 'checked' : ''}
                           id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
                           <label class="event__type-label  event__type-label--${type}" for="event-type-${type}">${type}</label>
@@ -28,7 +28,7 @@ function createEditPointTemplate(point,destination,allDestinations,allTypeOffers
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                    ${allDestinations.map((item)=> `<option value="${item.name}"></option>`).join('')}
+                    ${allDestinations.map((item)=> `<option value="${item}"></option>`).join('')}
                     </datalist>
                   </div>
 
@@ -57,7 +57,7 @@ function createEditPointTemplate(point,destination,allDestinations,allTypeOffers
                 <section class="event__details">
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-                    ${offersType.map((item)=> `<div class="event__available-offers">
+                    ${offersByType.map((item)=> `<div class="event__available-offers">
                       <div class="event__offer-selector">
                         <input class="event__offer-checkbox  visually-hidden"
                         id="${item.id}" type="checkbox" name="event-offer-${item.id}"
@@ -86,28 +86,47 @@ function createEditPointTemplate(point,destination,allDestinations,allTypeOffers
               </form>`;
 }
 
-export default class EditPointView {
-  constructor(point,destination,allDestinations,allTypeOffers,offersType){
-    this.point = point;
-    this.destination = destination;
-    this.allDestinations = allDestinations;
-    this.allTypeOffers = allTypeOffers;
-    this.offersType = offersType;
+export default class EditPointView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #allDestinations = null;
+  #pointTypes = null;
+  #offersByType = null;
+  #handleFormSubmit = null;
+  #handleRollupClick = null;
+
+  constructor({ point, destination, allDestinations, pointTypes, offersByType, onFormSubmit, onRollupClick }) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#allDestinations = allDestinations;
+    this.#pointTypes = pointTypes;
+    this.#offersByType = offersByType;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleRollupClick = onRollupClick;
+
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
   }
 
-  getTemplate() {
-    return createEditPointTemplate(this.point,this.destination,this.allDestinations,this.allTypeOffers,this.offersType);
+  get template() {
+    return createEditPointTemplate(
+      this.#point,
+      this.#destination,
+      this.#allDestinations,
+      this.#pointTypes,
+      this.#offersByType
+    );
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick();
+  };
 }
