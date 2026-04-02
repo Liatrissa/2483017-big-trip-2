@@ -1,7 +1,6 @@
 import { DESTINATIONS } from './destinations.js';
 import { OFFERS } from './offers.js';
 import { POINT_TYPES } from '../const.js';
-import { getRandomArrayElement } from '../utils.js';
 
 const POINTS = [
   {
