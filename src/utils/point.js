@@ -3,16 +3,8 @@ import dayjs from 'dayjs';
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
 
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
-
-const getRandomInteger = (min, max) => {
-  const lower = Math.ceil(Math.min(min, max));
-  const upper = Math.floor(Math.max(min, max));
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-
-function humanizeEventDate(date) {
-  return date ? dayjs(date).format(DATE_FORMAT).toUpperCase() : '';
+function humanizeEventDate(date, format = DATE_FORMAT) {
+  return date ? dayjs(date).format(format).toUpperCase() : '';
 }
 
 function humanizeTime(date) {
@@ -50,4 +42,4 @@ function humanizeDuration(dateFrom, dateTo) {
   return `${String(daysCount).padStart(2, '0')}D${String(restHoursCount).padStart(2, '0')}H${String(restMinutesCount).padStart(2, '0')}M`;
 }
 
-export { getRandomArrayElement, getRandomInteger, humanizeEventDate, humanizeTime, humanizeDuration };
+export { humanizeEventDate, humanizeTime, humanizeDuration };

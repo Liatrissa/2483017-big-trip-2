@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeEventDate } from '../utils.js';
+import { humanizeEventDate } from '../utils/point.js';
 
 function createEditPointTemplate(point, destination, allDestinations, pointTypes, offersByType) {
   return `<form class="event event--edit" action="#" method="post">

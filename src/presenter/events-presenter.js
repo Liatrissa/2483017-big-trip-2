@@ -3,6 +3,7 @@ import SortView from '../view/sort-view.js';
 import TripEventsListView from '../view/events-view.js';
 import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
+import NoPointView from '../view/no-point-view.js';
 
 export default class EventsPresenter {
   #eventsContainer = null;
@@ -19,6 +20,15 @@ export default class EventsPresenter {
     this.#eventsPoints = this.#pointsModel.points.slice();
     const allDestinations = this.#pointsModel.destinations.map((item) => item.name);
     const pointTypes = this.#pointsModel.offers.map((item) => item.type);
+
+    this.#renderBoard(allDestinations, pointTypes);
+  }
+
+  #renderBoard(allDestinations, pointTypes) {
+    if (this.#eventsPoints.length === 0) {
+      render(new NoPointView(), this.#eventsContainer);
+      return;
+    }
 
     render(new SortView(), this.#eventsContainer);
     render(this.#eventsListComponent, this.#eventsContainer);
