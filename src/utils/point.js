@@ -42,4 +42,19 @@ function humanizeDuration(dateFrom, dateTo) {
   return `${String(daysCount).padStart(2, '0')}D${String(restHoursCount).padStart(2, '0')}H${String(restMinutesCount).padStart(2, '0')}M`;
 }
 
-export { humanizeEventDate, humanizeTime, humanizeDuration };
+function sortPointDay(pointA, pointB) {
+  return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+}
+
+function sortPointTime(pointA, pointB) {
+  const durationPointA = dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom));
+  const durationPointB = dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom));
+
+  return durationPointB - durationPointA;
+}
+
+function sortPointPrice(pointA, pointB) {
+  return pointB.basePrice - pointA.basePrice;
+}
+
+export { humanizeEventDate, humanizeTime, humanizeDuration, sortPointDay, sortPointTime, sortPointPrice };
