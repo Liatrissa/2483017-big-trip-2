@@ -17,6 +17,12 @@ const FilterType = {
   PAST: 'past'
 };
 
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price'
+};
+
 const CITIES = [
   'Amsterdam',
   'Chamonix',
@@ -40,4 +46,4 @@ const OFFER_TITLES = [
   'Lunch in city'
 ];
 
-export { POINT_TYPES, FilterType, CITIES, OFFER_TITLES, DESCRIPTION_DESTINATION };
+export { POINT_TYPES, FilterType, SortType, CITIES, OFFER_TITLES, DESCRIPTION_DESTINATION };

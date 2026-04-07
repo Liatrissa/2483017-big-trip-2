@@ -1,5 +1,7 @@
 import { render } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
+import { SortType } from '../const.js';
+import { sortPointDay, sortPointTime, sortPointPrice } from '../utils/point.js';
 import SortView from '../view/sort-view.js';
 import TripEventsListView from '../view/events-view.js';
 import NoPointView from '../view/no-point-view.js';
@@ -10,9 +12,12 @@ export default class EventsPresenter {
   #pointsModel = null;
   #eventsListComponent = new TripEventsListView();
   #eventsPoints = [];
+  #sourcedEventsPoints = [];
   #pointPresenters = new Map();
   #allDestinations = [];
   #pointTypes = [];
+  #sortComponent = null;
+  #currentSortType = SortType.DAY;
 
   constructor({ eventsContainer, pointsModel }) {
     this.#eventsContainer = eventsContainer;
@@ -33,11 +38,42 @@ export default class EventsPresenter {
 
   #handlePointChange = (updatedPoint) => {
     this.#eventsPoints = updateItem(this.#eventsPoints, updatedPoint);
+    this.#sourcedEventsPoints = updateItem(this.#sourcedEventsPoints, updatedPoint);
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, this.#allDestinations, this.#pointTypes);
   };
 
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#eventsPoints.sort(sortPointTime);
+        break;
+      case SortType.PRICE:
+        this.#eventsPoints.sort(sortPointPrice);
+        break;
+      case SortType.DAY:
+        this.#eventsPoints.sort(sortPointDay);
+        break;
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearPointList();
+    this.#renderPointList();
+  };
+
   #renderSort() {
-    render(new SortView(), this.#eventsContainer);
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#eventsContainer);
   }
 
   #renderEventsList() {
@@ -52,6 +88,10 @@ export default class EventsPresenter {
     this.#eventsPoints.forEach((point) => {
       this.#renderPoint(point);
     });
+  }
+
+  #renderPointList() {
+    this.#renderPoints();
   }
 
   #renderBoard() {
