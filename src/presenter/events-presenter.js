@@ -26,7 +26,7 @@ export default class EventsPresenter {
 
   init() {
     this.#eventsPoints = this.#pointsModel.points.slice();
-    this.#allDestinations = this.#pointsModel.destinations.map((item) => item.name);
+    this.#allDestinations = this.#pointsModel.destinations;
     this.#pointTypes = this.#pointsModel.offers.map((item) => item.type);
 
     this.#renderBoard();
