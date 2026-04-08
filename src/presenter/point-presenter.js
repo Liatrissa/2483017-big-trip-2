@@ -34,12 +34,12 @@ export default class PointPresenter {
     const destination = this.#pointsModel.getDestinationById(point.destination);
     const offersData = this.#pointsModel.getOffersByType(point.type);
     const offersByType = offersData ? offersData.offers : [];
-    const offers = offersByType.filter((offer) => point.offers.includes(offer.id));
+    const selectedOffers = offersByType.filter((offer) => point.offers.includes(offer.id));
 
     this.#pointComponent = new PointView({
       point,
       destination,
-      offers,
+      offers: selectedOffers,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
@@ -50,6 +50,7 @@ export default class PointPresenter {
       allDestinations,
       pointTypes,
       offersByType,
+      allOffers: this.#pointsModel.offers,
       onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick
     });
@@ -78,6 +79,11 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      const destination = this.#pointsModel.getDestinationById(this.#point.destination);
+      const offersData = this.#pointsModel.getOffersByType(this.#point.type);
+      const offersByType = offersData ? offersData.offers : [];
+
+      this.#editPointComponent.reset(this.#point, destination, offersByType);
       this.#replaceEditToPoint();
     }
   }
@@ -106,8 +112,8 @@ export default class PointPresenter {
     });
   };
 
-  #handleFormSubmit = () => {
-    this.#handleDataChange(this.#point);
+  #handleFormSubmit = (updatedPoint) => {
+    this.#handleDataChange(updatedPoint);
     this.#replaceEditToPoint();
   };
 
@@ -118,6 +124,12 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+
+      const destination = this.#pointsModel.getDestinationById(this.#point.destination);
+      const offersData = this.#pointsModel.getOffersByType(this.#point.type);
+      const offersByType = offersData ? offersData.offers : [];
+
+      this.#editPointComponent.reset(this.#point, destination, offersByType);
       this.#replaceEditToPoint();
     }
   };
