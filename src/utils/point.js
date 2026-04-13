@@ -57,4 +57,8 @@ function sortPointPrice(pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
 }
 
-export { humanizeEventDate, humanizeTime, humanizeDuration, sortPointDay, sortPointTime, sortPointPrice };
+function isDatesEqual(dateA, dateB) {
+  return dayjs(dateA).isSame(dayjs(dateB));
+}
+
+export { humanizeEventDate, humanizeTime, humanizeDuration, sortPointDay, sortPointTime, sortPointPrice, isDatesEqual };
