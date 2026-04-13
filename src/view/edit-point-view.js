@@ -41,7 +41,7 @@ function createEditPointTemplate(state) {
                     <label class="event__label  event__type-output" for="event-destination-${id}">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${id}">
+                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${id}" required>
                     <datalist id="destination-list-${id}">
                     ${allDestinations.map((item)=> `<option value="${item.name}"></option>`).join('')}
                     </datalist>
@@ -60,7 +60,15 @@ function createEditPointTemplate(state) {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${basePrice}">
+                    <input
+                      class="event__input event__input--price"
+                      id="event-price-${id}"
+                      type="number"
+                      name="event-price"
+                      value="${basePrice}"
+                      min="0"
+                      required
+                    >
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -106,11 +114,22 @@ function createEditPointTemplate(state) {
 
 export default class EditPointView extends AbstractStatefulView {
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
   #handleRollupClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point, destination, allDestinations, pointTypes, offersByType, allOffers, onFormSubmit, onRollupClick }) {
+  constructor({
+    point,
+    destination,
+    allDestinations,
+    pointTypes,
+    offersByType,
+    allOffers,
+    onFormSubmit,
+    onDeleteClick,
+    onRollupClick
+  }) {
     super();
 
     this._setState(EditPointView.parsePointToState({
@@ -123,6 +142,7 @@ export default class EditPointView extends AbstractStatefulView {
     }));
 
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
     this.#handleRollupClick = onRollupClick;
 
     this._restoreHandlers();
@@ -163,11 +183,13 @@ export default class EditPointView extends AbstractStatefulView {
     const destinationInput = this.element.querySelector('.event__input--destination');
     const priceInput = this.element.querySelector('.event__input--price');
     const offersContainer = this.element.querySelector('.event__available-offers');
+    const resetButton = this.element.querySelector('.event__reset-btn');
 
     this.element.addEventListener('submit', this.#formSubmitHandler);
+    resetButton.addEventListener('click', this.#deleteClickHandler);
     rollupButton.addEventListener('click', this.#rollupClickHandler);
     pointTypeGroup.addEventListener('change', this.#pointTypeChangeHandler);
-    destinationInput.addEventListener('change', this.#destinationChangeHandler);
+    destinationInput.addEventListener('input', this.#destinationChangeHandler);
 
     priceInput.addEventListener('input', this.#priceInputHandler);
     offersContainer.addEventListener('change', this.#offersChangeHandler);
@@ -187,16 +209,18 @@ export default class EditPointView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    const newDestination = this._state.allDestinations.find(
+    evt.target.setCustomValidity('');
+
+    const selectedDestination = this._state.allDestinations.find(
       (item) => item.name === evt.target.value
     );
 
-    if (!newDestination) {
+    if (!selectedDestination) {
       return;
     }
 
-    this.updateElement({
-      destination: newDestination
+    this._setState({
+      destination: selectedDestination
     });
   };
 
@@ -261,7 +285,40 @@ export default class EditPointView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+
+    const destinationInput = this.element.querySelector('.event__input--destination');
+    const priceInput = this.element.querySelector('.event__input--price');
+
+    const selectedDestination = this._state.allDestinations.find(
+      (item) => item.name === destinationInput.value
+    );
+
+    if (!selectedDestination) {
+      destinationInput.setCustomValidity('Выберите город из списка');
+      destinationInput.reportValidity();
+      return;
+    }
+
+    destinationInput.setCustomValidity('');
+
+    if (!/^\d+$/.test(priceInput.value)) {
+      priceInput.setCustomValidity('Введите корректную цену');
+      priceInput.reportValidity();
+      return;
+    }
+
+    priceInput.setCustomValidity('');
+
+    this.#handleFormSubmit(EditPointView.parseStateToPoint({
+      ...this._state,
+      destination: selectedDestination,
+      basePrice: Number(priceInput.value)
+    }));
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
   };
 
   #rollupClickHandler = (evt) => {

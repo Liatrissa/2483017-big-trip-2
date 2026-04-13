@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { FilterType } from '../const.js';
 
-function createFilterItemTemplate(filter, isChecked) {
+function createFilterItemTemplate(filter, currentFilterType) {
   const { type, count } = filter;
   const filterName = type.charAt(0).toUpperCase() + type.slice(1);
 
@@ -13,7 +13,7 @@ function createFilterItemTemplate(filter, isChecked) {
         type="radio"
         name="trip-filter"
         value="${type}"
-        ${isChecked ? 'checked' : ''}
+        ${type === currentFilterType ? 'checked' : ''}
         ${count === 0 ? 'disabled' : ''}
       >
       <label class="trip-filters__filter-label" for="filter-${type}">${filterName}</label>
@@ -21,9 +21,9 @@ function createFilterItemTemplate(filter, isChecked) {
   );
 }
 
-function createFiltersTemplate(filters) {
+function createFiltersTemplate(filters, currentFilterType) {
   const filtersTemplate = filters
-    .map((filter) => createFilterItemTemplate(filter, filter.type === FilterType.EVERYTHING))
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
     .join('');
 
   return (
@@ -36,13 +36,27 @@ function createFiltersTemplate(filters) {
 
 export default class FiltersView extends AbstractView {
   #filters = null;
+  #currentFilterType = null;
+  #handleFilterTypeChange = null;
 
-  constructor({ filters }) {
+  constructor({ filters, currentFilterType, onFilterTypeChange }) {
     super();
     this.#filters = filters;
+    this.#currentFilterType = currentFilterType;
+    this.#handleFilterTypeChange = onFilterTypeChange;
+
+    this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
 
   get template() {
-    return createFiltersTemplate(this.#filters);
+    return createFiltersTemplate(this.#filters, this.#currentFilterType);
   }
+
+  #filterTypeChangeHandler = (evt) => {
+    if (!evt.target.classList.contains('trip-filters__filter-input')) {
+      return;
+    }
+
+    this.#handleFilterTypeChange(evt.target.value);
+  };
 }
