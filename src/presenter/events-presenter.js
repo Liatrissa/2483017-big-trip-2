@@ -6,6 +6,7 @@ import NewPointPresenter from './new-point-presenter.js';
 import SortView from '../view/sort-view.js';
 import TripEventsListView from '../view/events-view.js';
 import NoPointView from '../view/no-point-view.js';
+import LoadingView from '../view/loading-view.js';
 import PointPresenter from './point-presenter.js';
 
 export default class EventsPresenter {
@@ -18,9 +19,11 @@ export default class EventsPresenter {
   #pointTypes = [];
   #sortComponent = null;
   #noPointComponent = null;
+  #loadingComponent = new LoadingView();
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   constructor({ eventsContainer, pointsModel, filterModel, onNewPointDestroy }) {
     this.#eventsContainer = eventsContainer;
@@ -98,6 +101,13 @@ export default class EventsPresenter {
         this.#clearBoard({ resetSortType: true });
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#allDestinations = this.#pointsModel.destinations;
+        this.#pointTypes = this.#pointsModel.offers.map((item) => item.type);
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -128,6 +138,10 @@ export default class EventsPresenter {
     render(this.#eventsListComponent, this.#eventsContainer);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#eventsContainer);
+  }
+
   #renderNoPoints() {
     this.#noPointComponent = new NoPointView({
       filterType: this.#filterType
@@ -148,6 +162,7 @@ export default class EventsPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noPointComponent) {
       remove(this.#noPointComponent);
@@ -159,7 +174,13 @@ export default class EventsPresenter {
   }
 
   #renderBoard() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const points = this.points;
+
     if (points.length === 0) {
       this.#renderNoPoints();
       return;
