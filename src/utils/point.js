@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
+const TRIP_DAY_FORMAT = 'DD';
+const TRIP_MONTH_DAY_FORMAT = 'DD MMM';
 
 function humanizeEventDate(date, format = DATE_FORMAT) {
   return date ? dayjs(date).format(format).toUpperCase() : '';
@@ -9,6 +11,21 @@ function humanizeEventDate(date, format = DATE_FORMAT) {
 
 function humanizeTime(date) {
   return date ? dayjs(date).format(TIME_FORMAT) : '';
+}
+
+function humanizeTripDates(dateFrom, dateTo) {
+  if (!dateFrom || !dateTo) {
+    return '';
+  }
+
+  const startDate = dayjs(dateFrom);
+  const endDate = dayjs(dateTo);
+
+  if (startDate.isSame(endDate, 'month')) {
+    return `${startDate.format(TRIP_DAY_FORMAT)} — ${endDate.format(TRIP_MONTH_DAY_FORMAT)}`;
+  }
+
+  return `${startDate.format(TRIP_MONTH_DAY_FORMAT)} — ${endDate.format(TRIP_MONTH_DAY_FORMAT)}`;
 }
 
 function humanizeDuration(dateFrom, dateTo) {
@@ -61,4 +78,4 @@ function isDatesEqual(dateA, dateB) {
   return dayjs(dateA).isSame(dayjs(dateB));
 }
 
-export { humanizeEventDate, humanizeTime, humanizeDuration, sortPointDay, sortPointTime, sortPointPrice, isDatesEqual };
+export { humanizeEventDate, humanizeTime, humanizeTripDates, humanizeDuration, sortPointDay, sortPointTime, sortPointPrice, isDatesEqual };

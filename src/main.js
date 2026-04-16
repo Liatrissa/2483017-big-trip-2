@@ -3,6 +3,7 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApiService from './big-trip-api-service.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 
 const AUTHORIZATION = 'Basic qW1wdW33tyu9cv9p';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -12,6 +13,7 @@ const siteMainElement = document.querySelector('.page-main');
 
 const filtersContainerElement = siteHeaderElement.querySelector('.trip-controls__filters');
 const tripEventsElement = siteMainElement.querySelector('.trip-events');
+const tripMainElement = siteHeaderElement.querySelector('.trip-main');
 
 const pointsModel = new PointsModel({
   bigTripApiService: new BigTripApiService(END_POINT, AUTHORIZATION)
@@ -31,6 +33,11 @@ const filterPresenter = new FilterPresenter({
   pointsModel,
 });
 
+const tripInfoPresenter = new TripInfoPresenter({
+  tripMainContainer: tripMainElement,
+  pointsModel
+});
+
 const newPointButtonElement = siteHeaderElement.querySelector('.trip-main__event-add-btn');
 
 function handleNewPointFormClose() {
@@ -43,6 +50,7 @@ function handleNewPointButtonClick() {
 }
 
 filterPresenter.init();
+tripInfoPresenter.init();
 eventsPresenter.init();
 
 pointsModel.init()
