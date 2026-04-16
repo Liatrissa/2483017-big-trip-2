@@ -50,6 +50,7 @@ function handleNewPointButtonClick() {
 }
 
 filterPresenter.init();
+tripInfoPresenter.init();
 eventsPresenter.init();
 
 pointsModel.init()

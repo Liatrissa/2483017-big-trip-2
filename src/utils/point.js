@@ -4,7 +4,6 @@ const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
 const TRIP_DAY_FORMAT = 'DD';
 const TRIP_MONTH_DAY_FORMAT = 'DD MMM';
-const TRIP_MONTH_FORMAT = 'MMM';
 
 function humanizeEventDate(date, format = DATE_FORMAT) {
   return date ? dayjs(date).format(format).toUpperCase() : '';
