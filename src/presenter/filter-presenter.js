@@ -1,6 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import FiltersView from '../view/filters-view.js';
 import { FilterType, UpdateType } from '../const.js';
+import { filter } from '../utils/filter.js';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -19,24 +20,12 @@ export default class FilterPresenter {
   }
 
   get filters() {
-    return [
-      {
-        type: FilterType.EVERYTHING,
-        count: this.#pointsModel.points.length
-      },
-      {
-        type: FilterType.FUTURE,
-        count: this.#pointsModel.points.length
-      },
-      {
-        type: FilterType.PRESENT,
-        count: this.#pointsModel.points.length
-      },
-      {
-        type: FilterType.PAST,
-        count: this.#pointsModel.points.length
-      }
-    ];
+    const points = this.#pointsModel.points;
+
+    return Object.values(FilterType).map((filterType) => ({
+      type: filterType,
+      count: filter[filterType](points).length,
+    }));
   }
 
   init() {
