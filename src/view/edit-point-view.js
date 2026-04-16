@@ -14,7 +14,10 @@ function createEditPointTemplate(state) {
     destination,
     allDestinations,
     pointTypes,
-    offersByType
+    offersByType,
+    isDisabled,
+    isSaving,
+    isDeleting
   } = state;
 
   return `<form class="event event--edit" action="#" method="post">
@@ -30,7 +33,12 @@ function createEditPointTemplate(state) {
                         <legend class="visually-hidden">Event type</legend>
                         ${pointTypes.map((pointType) => ` <div class="event__type-item">
                           <input ${pointType === type ? 'checked' : ''}
-                          id="event-type-${pointType}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${pointType}">
+                            id="event-type-${pointType}-${id}"
+                            class="event__type-input  visually-hidden"
+                            type="radio"
+                            name="event-type"
+                            value="${pointType}"
+                            ${isDisabled ? 'disabled' : ''}>
                           <label class="event__type-label  event__type-label--${pointType}" for="event-type-${pointType}-${id}">${pointType}</label>
                         </div>`).join('')}
                       </fieldset>
@@ -41,7 +49,14 @@ function createEditPointTemplate(state) {
                     <label class="event__label  event__type-output" for="event-destination-${id}">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${id}" required>
+                    <input
+                      class="event__input  event__input--destination"
+                      id="event-destination-${id}"
+                      type="text"
+                      name="event-destination"
+                      value="${destination.name}" list="destination-list-${id}"
+                      required
+                      ${isDisabled ? 'disabled' : ''}>
                     <datalist id="destination-list-${id}">
                     ${allDestinations.map((item)=> `<option value="${item.name}"></option>`).join('')}
                     </datalist>
@@ -49,10 +64,22 @@ function createEditPointTemplate(state) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-${id}">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom, 'DD/MM/YY HH:mm')}">
+                    <input 
+                      class="event__input  event__input--time"
+                      id="event-start-time-${id}"
+                      type="text"
+                      name="event-start-time"
+                      value="${humanizeEventDate(dateFrom, 'DD/MM/YY HH:mm')}"
+                      ${isDisabled ? 'disabled' : ''}>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-${id}">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeEventDate(dateTo, 'DD/MM/YY HH:mm')}">
+                    <input 
+                      class="event__input  event__input--time"
+                      id="event-end-time-${id}"
+                      type="text"
+                      name="event-end-time"
+                      value="${humanizeEventDate(dateTo, 'DD/MM/YY HH:mm')}"
+                      ${isDisabled ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -60,7 +87,7 @@ function createEditPointTemplate(state) {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input
+                    <input 
                       class="event__input event__input--price"
                       id="event-price-${id}"
                       type="number"
@@ -68,13 +95,26 @@ function createEditPointTemplate(state) {
                       value="${basePrice}"
                       min="0"
                       required
-                    >
+                      ${isDisabled ? 'disabled' : ''}>
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
-                    <span class="visually-hidden">Open event</span>
+                  <button 
+                    class="event__save-btn  btn  btn--blue"
+                    type="submit"
+                    ${isDisabled ? 'disabled' : ''}>
+                  ${isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    class="event__reset-btn"
+                    type="reset"
+                    ${isDisabled ? 'disabled' : ''}>
+                  ${isDeleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                  <button
+                    class="event__rollup-btn"
+                    type="button"
+                    ${isDisabled ? 'disabled' : ''}>
+                  <span class="visually-hidden">Open event</span>
                   </button>
                 </header>
                 <section class="event__details">
@@ -82,12 +122,14 @@ function createEditPointTemplate(state) {
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
                     ${offersByType.map((offer) => `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden"
-                        id="event-offer-${offer.id}-${id}"
-                        type="checkbox"
-                        name="event-offer-${offer.id}"
-                        value="${offer.id}"
-                        ${offers.includes(offer.id) ? 'checked' : ''}>
+                        <input
+                          class="event__offer-checkbox  visually-hidden"
+                          id="event-offer-${offer.id}-${id}"
+                          type="checkbox"
+                          name="event-offer-${offer.id}"
+                          value="${offer.id}"
+                          ${offers.includes(offer.id) ? 'checked' : ''}
+                          ${isDisabled ? 'disabled' : ''}>
 
                         <label class="event__offer-label" for="event-offer-${offer.id}-${id}">
                           <span class="event__offer-title">${offer.title}</span>
@@ -333,7 +375,10 @@ export default class EditPointView extends AbstractStatefulView {
       allDestinations,
       pointTypes,
       offersByType,
-      allOffers
+      allOffers,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
     };
   }
 
@@ -346,6 +391,9 @@ export default class EditPointView extends AbstractStatefulView {
     delete point.pointTypes;
     delete point.offersByType;
     delete point.allOffers;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
 
     return point;
   }

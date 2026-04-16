@@ -1,5 +1,4 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { nanoid } from 'nanoid';
 import EditPointView from '../view/edit-point-view.js';
 import { UserAction, UpdateType } from '../const.js';
 
@@ -33,11 +32,13 @@ export default class NewPointPresenter {
     const offersByType = offersData ? offersData.offers : [];
     const destination = this.#pointsModel.getDestinationById(defaultDestinationId);
 
+    const currentDate = new Date();
+    const endDate = new Date(currentDate.getTime() + 60 * 60 * 1000);
+
     const emptyPoint = {
-      id: nanoid(),
-      basePrice: 0,
-      dateFrom: new Date().toISOString(),
-      dateTo: new Date().toISOString(),
+      basePrice: 50,
+      dateFrom: currentDate.toISOString(),
+      dateTo: endDate.toISOString(),
       destination: defaultDestinationId,
       isFavorite: false,
       offers: [],
@@ -71,17 +72,31 @@ export default class NewPointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#pointComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      {
-        ...point,
-        id: nanoid()
-      }
+      point
     );
-
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
