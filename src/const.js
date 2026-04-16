@@ -55,7 +55,8 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR'
+  MAJOR: 'MAJOR',
+  INIT: 'INIT'
 };
 
 export { POINT_TYPES, FilterType, SortType, CITIES, OFFER_TITLES, DESCRIPTION_DESTINATION, UserAction, UpdateType };
